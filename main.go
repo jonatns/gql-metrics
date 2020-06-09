@@ -1,10 +1,12 @@
 package main
 
 import (
-	"gql-metrics/structs"
-	"gql-metrics/utils"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/jonatns/gql-metrics/structs"
+	"github.com/jonatns/gql-metrics/utils"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -29,7 +31,15 @@ func addQuery(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "query is not a valid GrapQL query",
+			"error": "query is required",
+		})
+
+		return
+	}
+
+	if strings.Contains(gqlRequest.Query, "IntrospectionQuery") {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Ignoring introspection query",
 		})
 
 		return
